@@ -61,7 +61,7 @@ public class Model extends Observable {
     /** Return true iff the game is over (there are no moves, or
      *  there is a tile with value 2048 on the board). */
     public boolean gameOver() {
-        checkGameOver();
+        gameOver = checkGameOver(board);
         if (gameOver) {
             maxScore = Math.max(score, maxScore);
         }
@@ -90,7 +90,7 @@ public class Model extends Observable {
      *  same position. */
     public void addTile(Tile tile) {
         board.addTile(tile);
-        checkGameOver();
+        checkGameOver(board);
         setChanged();
     }
 
@@ -109,23 +109,95 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        board.setViewingPerspective(side);
 
-        checkGameOver();
+        for (int colNum=0;colNum<board.size();colNum++){
+            int[] col_list = {0,0,0,0};
+            for (int rowNum=0;rowNum<board.size();rowNum++){
+                Tile t = board.tile(colNum,rowNum);
+                if (t!=null){
+                    col_list[rowNum] = t.value();
+                }
+            }
+            int[] tmp_list = reverse(col_list);
+            int[] pos_list =  getPosition(tmp_list);
+            for (int rowNum=board.size()-1;rowNum>-1;rowNum--){
+                Tile t = board.tile(colNum,rowNum);
+                if (t!=null){
+                    int target_row = rowNum+pos_list[3-rowNum];
+//                    System.out.println(colNum+","+rowNum+"->"+colNum+","+target_row);
+                    boolean a = board.move(colNum,rowNum+pos_list[3-rowNum],t);
+                    if (a){
+                        score+=t.value()*2;
+                    }
+                    if (rowNum!=target_row){
+                        changed = true;
+                    }
+                }
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
+        System.out.println("-------------------------");
+
+        boolean end =  checkGameOver(board);
+        System.out.println("结束？"+end);
         if (changed) {
             setChanged();
         }
         return changed;
     }
 
-    /** Checks if the game is over and sets the gameOver variable
-     *  appropriately.
-     */
-    private void checkGameOver() {
-        gameOver = checkGameOver(board);
+    private int[] reverse(int[] a) {
+        int[] return_list = {0, 0, 0, 0};
+        for(int i=0;i<a.length;i++){
+            return_list[a.length-i-1] = a[i];
+        }
+        return return_list;
+    }
+    private int[] getPosition(int[] a) {
+//        输入[1,1,2,2] 返回 [0,1,1,2] 每个变量左移的格子数
+        int[] return_list_colasp = colasp(a);
+        a = moveList(a,return_list_colasp);
+
+        int[] return_list_shrink = {0, 0, 0, 0};
+        for(int i=0;i<a.length-1;i++){
+            if (a[i]==a[i+1]){
+                for(int j=i+1;j<a.length;j++){
+                    return_list_shrink[j] += 1;
+                }
+                i+=1;
+            }
+        }
+        int[] return_list = {0, 0, 0, 0};
+        for(int i=0;i<return_list_colasp.length;i++){
+            return_list[i] = return_list_colasp[i]+return_list_shrink[i-return_list_colasp[i]];
+        }
+        return return_list;
+    }
+
+    private int[] moveList(int[] list,int[] pos_list) {
+//        移动格子
+        int[] return_list = {0, 0, 0, 0};
+        for(int i=0;i<list.length;i++){
+            return_list[i-pos_list[i]] = list[i];
+        }
+        return return_list;
+    }
+
+    private int[] colasp(int[] list) {
+//        去0
+        int[] return_list = {0, 0, 0, 0};
+        for(int i=0;i<list.length-1;i++){
+            if (list[i]==0){
+                for(int j=i+1;j<list.length;j++){
+                    return_list[j]+=1;
+                }
+            }
+        }
+        return return_list;
     }
 
     /** Determine whether game is over. */
@@ -138,6 +210,15 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for (int rowNum=0;rowNum<b.size();rowNum++){
+            for (int colNum=0;colNum<b.size();colNum++){
+//                System.out.println(b.tile(colNum,rowNum));
+                if (b.tile(colNum,rowNum)==null){
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -148,6 +229,14 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        for (int rowNum=0;rowNum<b.size();rowNum++){
+            for (int colNum=0;colNum<b.size();colNum++){
+//                System.out.println(b.tile(colNum,rowNum));
+                if (b.tile(colNum,rowNum)!=null && b.tile(colNum,rowNum).value()==MAX_PIECE ){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -159,7 +248,27 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
-        return false;
+        if (emptySpaceExists(b)){
+            return true;
+        }else {
+            for (int rowNum=0;rowNum<b.size()-1;rowNum++){ //竖扫
+                for (int colNum=0;colNum<b.size();colNum++){
+                    if (b.tile(colNum,rowNum).value()==b.tile(colNum,rowNum+1).value() ){
+                        return true;
+                    }
+                }
+            }
+
+            for (int colNum=0;colNum<b.size()-1;colNum++){
+                for (int rowNum=0;rowNum<b.size();rowNum++){ //横扫
+                    if (b.tile(colNum,rowNum).value()==b.tile(colNum+1,rowNum).value() ){
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 
 
