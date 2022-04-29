@@ -82,6 +82,22 @@ public class LinkedListDeque<shit_things> {
         return p.item;
     }
 
+    public shit_things getRecursive(int index){
+        IntNode p = sentinel;
+        return getRecursiveHelper(p,index);
+
+    }
+
+    private shit_things getRecursiveHelper(IntNode p, int index) {
+        if (p == sentinel) {
+            return null;
+        }
+        if (index == 0) {
+            return  p.item;
+        }
+        return getRecursiveHelper(p.next, index - 1);
+    }
+
 
     public boolean isEmpty() {
         return size == 0;
