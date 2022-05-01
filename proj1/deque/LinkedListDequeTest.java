@@ -145,6 +145,10 @@ public class LinkedListDequeTest {
             assertEquals("Should have the same value", i, (double) lld1.get(i), 0.0);
         }
 
+        for (int i = 0; i < 50; i++) {
+            assertEquals("Should have the same value", i, (double) lld1.getRecursive(i), 0.0);
+        }
+
 
     }
 }
