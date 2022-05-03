@@ -216,4 +216,23 @@ public class ArrayDequeTest {
 
 
     }
+
+    @Test
+    /* Add large number of elements to deque; check if order is correct. */
+    public void copy_d_test() {
+
+        ArrayDeque<Integer> ad = new ArrayDeque<Integer>();
+        for (int i = 0; i < 100; i++) {
+            ad.addLast(i);
+        }
+
+        ArrayDeque<Integer> ad_target = new ArrayDeque<Integer>(ad);
+
+        for (int i = 0; i < 100; i++) {
+            assertEquals("Should have the same value", ad.removeFirst(), ad_target.get(i), 0.0);
+        }
+
+
+
+    }
 }

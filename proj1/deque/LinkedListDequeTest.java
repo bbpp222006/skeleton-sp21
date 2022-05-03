@@ -151,4 +151,25 @@ public class LinkedListDequeTest {
 
 
     }
+
+    @Test
+    public void copy_deque_test() {
+
+        LinkedListDeque<Integer> lld_init = new LinkedListDeque<Integer>();
+
+        for (int i = 0; i < 100; i++) {
+            lld_init.addLast(i);
+        }
+        LinkedListDeque<Integer> lld_target = new LinkedListDeque<Integer>(lld_init);
+
+        for (int i = 0; i < 100; i++) {
+            assertEquals("Should have the same value", lld_init.removeFirst(), (double) lld_target.get(i), 0.0);
+        }
+
+        lld_init.printDeque();
+        lld_target.printDeque();
+
+
+
+    }
 }

@@ -24,6 +24,20 @@ public class LinkedListDeque<shit_things> {
         sentinel.next = sentinel;
     }
 
+
+    public LinkedListDeque(LinkedListDeque other){
+        sentinel= new IntNode(null,null, null);
+        sentinel.prev = sentinel;
+        sentinel.next = sentinel;
+
+        for(int i=0;i<other.size();i++){
+            shit_things item = (shit_things) other.get(i);
+            addLast(item);
+            size+=1;
+        }
+
+    }
+
     public int size() {
         return size;
     }
@@ -98,16 +112,6 @@ public class LinkedListDeque<shit_things> {
         return getRecursiveHelper(p.next, index - 1);
     }
 
-    public boolean equals(Object o){
-
-        if (!(o instanceof LinkedListDeque)){
-            return false;
-        }else {
-
-            return true;
-        }
-
-    }
 
     public boolean isEmpty() {
         return size == 0;

@@ -24,6 +24,17 @@ public class ArrayDeque<Item> {
         nextLast=0;
     }
 
+    public ArrayDeque(ArrayDeque others) {
+        size = others.size();
+        items = (Item[]) new Object[size];
+        nextFirst = items.length-1;
+        nextLast=0;
+
+        for (int i=0;i<size;i++){
+            items[i] = (Item) others.get(i);
+        }
+    }
+
     public void printDeque(){
         int current_index = jia(nextFirst,1);
         for (int i=0;i<size;i++){
@@ -70,7 +81,6 @@ public class ArrayDeque<Item> {
         size = size + 1;
         nextLast = jia(nextLast,1);
     }
-
 
 
     public Item removeLast() {
